@@ -153,6 +153,7 @@ app.get('/api/joblogs/metrics/delta', async (req, res) => {
 
 // AI Chat Assistant Endpoint
 app.post('/api/chat', async (req, res) => {
+
   const { question } = req.body;
   if (!question) return res.status(400).json({ error: 'Missing question' });
 
@@ -164,7 +165,7 @@ app.post('/api/chat', async (req, res) => {
     const llmResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'llama3-70b-8192', // Replace with your preferred model if needed
+        model: 'llama-3.3-70b-versatile', // Replace with your preferred model if needed
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: question }
@@ -183,17 +184,17 @@ app.post('/api/chat', async (req, res) => {
       // Try to parse the first code block as JSON
       const content = llmResponse.data.choices[0].message.content;
 
-      console.log({content});
+      console.error({content});
 
 
       const match = content.match(/```(?:json)?\n([\s\S]*?)```/);
       pipeline = match ? JSON.parse(match[1]) : JSON.parse(content);
 
     } catch (e) {
+
       return res.status(400).json({ error: 'Failed to parse aggregation pipeline from LLM response.' });
     }
 
-    
 
     // Convert string dates in $match.timestamp to Date objects
     if (Array.isArray(pipeline) && pipeline[0]?.$match?.timestamp) {
@@ -205,13 +206,12 @@ app.post('/api/chat', async (req, res) => {
     }
     // 2. Run the pipeline on MongoDB
     const result = await JobLog.aggregate(pipeline);
-
     // 3. Optionally, ask LLM to summarize the result
     const summaryPrompt = `Given the following MongoDB aggregation result, summarize the answer to the user's question. User question: "${question}". Result: ${JSON.stringify(result)}`;
     const summaryResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'llama3-70b-8192',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: 'You are a helpful assistant.' },
           { role: 'user', content: summaryPrompt }
@@ -225,11 +225,12 @@ app.post('/api/chat', async (req, res) => {
       }
     );
     const summary = summaryResponse.data.choices[0].message.content;
-
     // 4. Return both the raw data and the summary
     res.json({ data: result, summary });
 
   } catch (err) {
+    console.error('❌ ERROR in /api/chat:', err.message);
+
     res.status(500).json({ error: 'AI or DB error', details: err.message });
   }
 });
