@@ -15,6 +15,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const GROQ_API_KEY =  process.env.GROQ_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
 
 // MongoDB connection
@@ -165,7 +166,7 @@ app.post('/api/chat', async (req, res) => {
     const llmResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'llama-3.3-70b-versatile', // Replace with your preferred model if needed
+        model: GROQ_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: question }
@@ -211,7 +212,7 @@ app.post('/api/chat', async (req, res) => {
     const summaryResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'llama-3.3-70b-versatile',
+        model: GROQ_MODEL,
         messages: [
           { role: 'system', content: 'You are a helpful assistant.' },
           { role: 'user', content: summaryPrompt }

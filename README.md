@@ -73,10 +73,12 @@ Create a `.env` file in the `backend/` directory:
 MONGODB_URI=mongodb://localhost:27017/boston_assignment OR the remote address
 PORT=5000
 GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 - Replace `your_groq_api_key_here` with your actual Groq API key ([get one here](https://console.groq.com/keys)).
 - The default `MONGODB_URI` is for local MongoDB only.
+- `GROQ_MODEL` is optional and defaults to `llama-3.3-70b-versatile`. You can change this if the model gets deprecated. Common Groq models include: `llama-3.3-70b-versatile`, `llama-3.1-70b-versatile`, `llama-3.1-8b-instant`, `mixtral-8x7b-32768`, etc.
 
 #### Import Data (REQUIRED)
 
