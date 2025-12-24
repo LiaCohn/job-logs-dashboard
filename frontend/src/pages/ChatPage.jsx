@@ -33,21 +33,34 @@ const ChatPage = () => {
     <Box
       sx={{
         width: '100%',
-        maxWidth: 700,
+        maxWidth: 800,
         mx: 'auto',
-        pt: 6,
+        pt: 4,
         px: 2,
         display: 'flex',
         flexDirection: 'column',
         minHeight: '80vh',
+        alignItems: 'center',
       }}
     >
-      <Typography variant="h4" gutterBottom>AI Chat Assistant</Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Box sx={{ flex: 1, minHeight: 300, maxHeight: 400, overflowY: 'auto', mb: 2, background: '#fafafa', borderRadius: 2 }}>
+      <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>AI Chat Assistant</Typography>
+      {error && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{error}</Alert>}
+      <Box sx={{ 
+        flex: 1, 
+        minHeight: 300, 
+        maxHeight: 500, 
+        overflowY: 'auto', 
+        mb: 2, 
+        background: '#2d2d2d', 
+        borderRadius: 2,
+        width: '100%',
+        p: 2
+      }}>
         <ChatHistory messages={messages} loading={loading} />
       </Box>
-      <ChatBox onSend={handleSend} loading={loading} />
+      <Box sx={{ width: '100%' }}>
+        <ChatBox onSend={handleSend} loading={loading} />
+      </Box>
     </Box>
   );
 };

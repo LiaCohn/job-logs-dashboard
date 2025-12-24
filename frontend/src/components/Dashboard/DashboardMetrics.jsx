@@ -6,7 +6,7 @@ const DashboardMetrics = ({ averageMetric, deltaMetric, loading }) => {
   const topDelta = deltaMetric && deltaMetric[0];
 
   return (
-    <Box display="flex" gap={2} mb={3}>
+    <Box display="flex" gap={2} mb={3} justifyContent="center" flexWrap="wrap">
       <Card sx={{ minWidth: 200 }}>
         <CardContent>
           <Typography variant="h6">Top Average Jobs Sent</Typography>

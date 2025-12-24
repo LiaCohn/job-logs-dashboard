@@ -114,8 +114,13 @@ const DashboardPage = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Operations Dashboard</h1>
+    <div style={{ 
+      padding: '2rem',
+      maxWidth: '1400px',
+      margin: '0 auto',
+      width: '100%'
+    }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Operations Dashboard</h1>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <GeneralDashboardCharts />
       <DashboardFilters
