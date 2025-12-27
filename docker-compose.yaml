@@ -1,0 +1,64 @@
+name: logs-dashboard
+
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: logs_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=boston_assignment
+    networks:
+      - logs_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: logs-backend
+    container_name: logs_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/boston_assignment
+      - PORT=5000
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+    depends_on:
+      - mongodb
+    networks:
+      - logs_network
+    volumes:                                    # ← ADD THIS
+      - ./data:/data                      # ← ADD THIS
+
+  # Frontend (React + nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: logs-frontend
+    container_name: logs_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - logs_network
+
+# Persistent storage for MongoDB
+volumes:
+  mongodb_data:
+
+# Network for inter-container communication
+networks:
+  logs_network:
+    driver: bridge

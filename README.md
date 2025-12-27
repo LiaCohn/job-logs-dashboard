@@ -16,6 +16,11 @@ A full-stack web application for analyzing and visualizing job log data, featuri
 
 ## Requirements
 
+### For Docker (Recommended)
+- **Docker Desktop** ([Download here](https://www.docker.com/products/docker-desktop))
+- **Groq API Key** ([Get one here](https://console.groq.com/keys))
+
+### For Local Development
 - **Node.js** (v18+ recommended)
 - **npm** (v9+ recommended)
 - **MongoDB** (local instance required)
@@ -23,7 +28,82 @@ A full-stack web application for analyzing and visualizing job log data, featuri
 
 ---
 
-## Installation
+## Quick Start with Docker 🐳 (Recommended)
+
+The easiest way to run this application is with Docker. This method handles all dependencies automatically.
+
+### 1. Clone the repository
+
+```sh
+git clone https://github.com/YOUR_USERNAME/job-logs-dashboard.git
+cd job-logs-dashboard
+```
+
+### 2. Create Environment File
+
+Create a `.env` file in the **project root** directory:
+
+```
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+Replace `your_groq_api_key_here` with your actual Groq API key ([get one here](https://console.groq.com/keys)).
+
+### 3. Start All Services
+
+```sh
+docker-compose up -d
+```
+
+This command will:
+- Build the frontend and backend Docker images
+- Pull MongoDB image
+- Start all three containers
+- Set up networking between services
+
+**First-time build takes 2-3 minutes. Subsequent starts are instant.**
+
+### 4. Import Data (First Time Only)
+
+```sh
+docker-compose exec backend node scripts/importData.js
+```
+
+Wait for the import to complete (about 1-2 minutes).
+
+### 5. Access the Application
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000/api/health
+- **MongoDB**: localhost:27017 (for database tools like MongoDB Compass)
+
+### Docker Management Commands
+
+```sh
+# View logs
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f backend
+docker-compose logs -f frontend
+
+# Stop all services
+docker-compose down
+
+# Restart services
+docker-compose restart
+
+# Rebuild after code changes
+docker-compose up --build -d
+
+# Stop and remove all data (fresh start)
+docker-compose down -v
+```
+
+---
+
+## Local Development Installation
 
 ### 1. Clone the repository
 
@@ -112,6 +192,12 @@ The frontend will run on `http://localhost:5173` by default.
 
 ## Usage
 
+### With Docker
+- Visit `http://localhost:3000` in your browser.
+- Use the dashboard to filter, sort, and analyze job logs.
+- Open the AI Chat Assistant page to ask questions about your job data.
+
+### Local Development
 - Visit `http://localhost:5173` in your browser.
 - Use the dashboard to filter, sort, and analyze job logs.
 - Open the AI Chat Assistant page to ask questions about your job data.
@@ -121,8 +207,9 @@ The frontend will run on `http://localhost:5173` by default.
 ## Notes
 
 - **API Key Security:** Never commit your `.env` file or API keys to version control.
-- **MongoDB:** Ensure MongoDB is running locally before starting the backend.
-- **Data Import:** You must run the import script before using the app.
+- **Docker Recommended:** Using Docker is the easiest way to run the application as it handles all dependencies.
+- **Data Persistence:** When using Docker, your MongoDB data persists in a Docker volume even after stopping containers.
+- **Data Import:** You must run the import script before using the app (first time only).
 
 ---
 
@@ -130,10 +217,77 @@ The frontend will run on `http://localhost:5173` by default.
 
 ```
 boston_assignment/
-  backend/    # Express.js, MongoDB, API endpoints
-  frontend/   # React, Vite, Material-UI, Recharts
-  data/       # Data files (e.g., transformedFeeds.json)
+  backend/              # Express.js, MongoDB, API endpoints
+    ├── Dockerfile      # Backend container configuration
+    ├── .dockerignore   # Files to exclude from Docker build
+    └── ...
+  frontend/             # React, Vite, Material-UI, Recharts
+    ├── Dockerfile      # Frontend container configuration
+    ├── nginx.conf      # nginx web server configuration
+    ├── .dockerignore   # Files to exclude from Docker build
+    └── ...
+  data/                 # Data files (e.g., transformedFeeds.json)
+  docker-compose.yaml   # Multi-container orchestration
+  .env                  # Environment variables (not committed)
 ```
+
+---
+
+## Architecture
+
+### Docker Architecture
+
+The application runs in three containers:
+
+1. **Frontend Container** (nginx + React)
+   - Serves static React files
+   - Proxies `/api` requests to backend
+   - Port: 3000 → 80
+
+2. **Backend Container** (Node.js + Express)
+   - REST API endpoints
+   - Connects to MongoDB
+   - Port: 5000
+
+3. **MongoDB Container**
+   - Database storage
+   - Persistent data volume
+   - Port: 27017
+
+All containers communicate via a dedicated Docker network.
+
+---
+
+## Troubleshooting
+
+### Docker Issues
+
+**Port already in use:**
+- Change the port mapping in `docker-compose.yaml`:
+  ```yaml
+  frontend:
+    ports:
+      - "3001:80"  # Changed from 3000
+  ```
+
+**Changes not reflecting:**
+- Rebuild containers: `docker-compose up --build`
+
+**Database is empty:**
+- Run data import: `docker-compose exec backend node scripts/importData.js`
+
+**Container won't start:**
+- Check logs: `docker-compose logs -f [service-name]`
+- Restart: `docker-compose restart [service-name]`
+
+### Local Development Issues
+
+**MongoDB connection error:**
+- Ensure MongoDB is running: `mongod`
+- Check connection string in `.env`
+
+**Port conflicts:**
+- Make sure ports 5000 (backend) and 5173 (frontend) are available
 
 ---
 
