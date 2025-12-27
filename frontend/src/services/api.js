@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export const fetchJobLogs = (params) =>
   axios.get(`${API_BASE}/joblogs`, { params }).then(res => res.data);
